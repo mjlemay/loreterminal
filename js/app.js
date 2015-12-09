@@ -393,37 +393,47 @@
             $paginatorBox = $('#paginator_box'),
             $displayPane = $('#display_pane');
 
-        console.log(bodyText);
 
         for (var i = remainingText.length; i >= 1;) {
-            console.log(remainingText.length + ' <=  ' + avgChunkAmount);
+            console.log('loop i ' + i);
             if (remainingText.length <= avgChunkAmount) {
+                console.log(remainingText.length + ' <=  ' + avgChunkAmount);
                 pageChunk = remainingText;
                 remainingText = '';
                 i = 0;
             } else {
+                console.log(remainingText.length + ' >  ' + avgChunkAmount);
                 pregnantPageChunk = remainingText.slice(0, chunkAmount);
                 remainingText = remainingText.slice(chunkAmount);
                 pageOrphans = remainingText.split(' ');
 
                 for (var j = pageOrphans.length; j > 0;) {
                     var orphan = pageOrphans[0];
+                    console.log('loop j ' + j);
                     pregnantPageChunk += ' ' + orphan;  //adds spaces to a broken word;
                     pageOrphans.shift();
                     $paginatorBox.html(pregnantPageChunk);
                     if ($paginatorBox[0].offsetHeight < $paginatorBox[0].scrollHeight) {
+                        console.log('paginating on ' + orphan);
                         pageOrphans.unshift(orphan);
                         remainingText = pageOrphans.join(' ');
+                        console.log('remainingText: ' + remainingText);
                         i = remainingText.length;
+                        pageChunk = '';
                         j = 0;
                     } else {
+                        console.log('adding to chunk');
                         pageChunk = pregnantPageChunk;
                         j--;
+                        console.log(j, remainingText);
+                        if (j <= 0) {
+                            ///some logic goes here
+                        }
                     }
                 }
                 i = remainingText.length;
             }
-            generatedPages.push(pageChunk);
+                generatedPages.push(pageChunk);
             if (avgChunkAmount !== initalChunkAmount) {
                 avgChunkAmount = (avgChunkAmount + pageChunk.length) / 2;
             } else {
@@ -459,9 +469,12 @@
                 }
                 //sets up alphabetized list of slugs for display
                 slugList = slugList.sort();
+                console.log(slugList);
                 for (var i = 0; i < slugList.length; i++ ) {
-                    var display_slug = slugList[i].replace(/%20/g, '_');
-                    displayString += display_slug + ', '
+                    if (typeof slugList[i] !== 'undefined') {
+                        var display_slug = slugList[i].replace(/%20/g, '_');
+                        displayString += display_slug + ', ';
+                    }
                 }
                 displayString = displayString.slice(0,-2);
             } else {
@@ -502,9 +515,10 @@
         }
 
         if (typeof pages[newPage] == 'undefined') {
-            pageData = pages[0]
+            newPage = 0;
         }
 
+        pageData = pages[newPage];
         currentPage = newPage;
         $displayPane.html(pages[currentPage]);
          updatePageCount();
@@ -672,6 +686,7 @@
             if (typeof apiData[collection] !== 'undefined'
                 && typeof apiData[collection].itemtype !== 'undefined') {
                 activeSection = collection;
+                currentPage = 0;
                 currentSubmenu = {
                     'home': '',
                     'get': 'name'
@@ -714,7 +729,6 @@
             data: parsedParams,
             dataType: 'json',
             success: function(responseData, textStatus, jqXHR) {
-                console.log('OMGZ POST IS DA SHIT VVVVVV')
                 console.log(responseData);
             },
             error: function (responseData, textStatus, errorThrown) {
