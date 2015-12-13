@@ -21,7 +21,8 @@
             'get':'collection'
         },
         isLoggedIn = false,
-        isWritingForm = false;
+        isWritingForm = false,
+        processingSpin = false;
 
     var jsonURl = 'https://infinite-plateau-8296.herokuapp.com/';
 
@@ -56,6 +57,19 @@
         }
     }
   
+    var staticText = {
+        'home': 'DATABASE: Activated<br/>RECORDS: Pending<br/>ROM MASTER: 4.2MB<BR/>ROM SLAVE 1:4.12MB<br/>ROM SLAVE 2:###<br/><br/>'
+            + 'Thank you for accessing the core database library. Your resource into the history and information on local tribes, survivors, and corporations.<br/><br/>'
+            + 'ERR: Please note data is still fragmented and further reclamation is required. Proceed with patience. SKU64#$%&BFD9CC<br/><br/><br>'
+            + 'Collections to [GET]:<br />Type "get records" for records directory'
+            + '<br />Type "get characters" for characters'
+            + '<br />Type "get tribes" for tribal directory',
+        'login': 'LOGIN INFORIMATION:<br />'
+            + '<br />To [SIGNUP] for a login, type "signup"'
+            + '<br />To [LOGIN] with an account, type<br/> "login email@account.com:password"'
+            + '<br /><br />To [SIGNUP] with Facebook, type<br/>  "signup facebook"'
+            + '<br />To [LOGIN] with Facebook, type<br/>  "login facebook"'
+    };
 
     //keypress tables to determine which keys you pressed
     var _to_ascii = {
@@ -268,12 +282,7 @@
     }
     
     function homeCommand(short) {
-        $('#display_pane').html('DATABASE: Activated<br/>RECORDS: Pending<br/>ROM MASTER: 4.2MB<BR/>ROM SLAVE 1:4.12MB<br/>ROM SLAVE 2:###<br/><br/>'
-            + 'Thank you for accessing the core database library. Your resource into the history and information on local tribes, survivors, and corporations.<br/><br/>'
-            + 'ERR: Please note data is still fragmented and further reclamation is required. Proceed with patience. SKU64#$%&BFD9CC<br/><br/><br>'
-            + 'Collections to [GET]:<br />Type "get records" for records directory'
-            + '<br />Type "get characters" for characters'
-            + '<br />Type "get tribes" for tribal directory');
+        updateBody(staticText.home, 0);
     }
 
     function loginCommand(commandArray) {
@@ -299,6 +308,30 @@
         delete currentSubmenu.list;
     }
 
+
+
+    function showSpinner(num, processing) {
+        console.log('showSpinner()');
+        var $displayPane = $('#display_pane');
+        var spinArray = ['|','/','-','\''];
+        if (typeof num === 'undefined') {
+            num = 0;
+        }
+        var newNum = num +  1;
+        if (num > 3) {
+            newNum = 0;
+        }
+        if (typeof processing !== 'undefined') {
+            processingSpin = processing;
+        }
+
+        if (processingSpin) {
+            $displayPane.html(spinArray[num] + '  Processing...');
+            setTimeout(function() {
+                showSpinner(newNum)
+            }, 150);
+        }
+    }
 
     function updateHeader(msg) {
         var shortMsg = msg.slice(0, 25);
@@ -392,8 +425,6 @@
             pageOrphans = [],
             $paginatorBox = $('#paginator_box'),
             $displayPane = $('#display_pane');
-
-        console.log('MOST RECENT CODE!!!!');
 
         for (var i = remainingText.length; i >= 1;) {
             console.log(remainingText.length + ' <=  ' + avgChunkAmount);
@@ -659,8 +690,9 @@
     function getData(collection, item) {
         console.log('getData(' + collection + ', ' + item + ')');
         var uri = apiData[collection].uri,
-        urlQuery = '';
-
+        urlQuery = '',
+        currentPage = 0;
+        showSpinner(0, true);
 
         if (typeof uri === 'undefined') {
             errorCommand(message);
@@ -702,6 +734,7 @@
             console.log('error', message);
             updateTerminal(message);
         }).always(function() {
+            processingSpin = false;
             console.log('COMPLETE');
         });
     }
@@ -730,14 +763,6 @@
                 console.log(errorThrown);
             }
         });
-/*
-        $.post(parsedUri, parsedParams)
-          .done(function(data) {
-            console.log('SUCCESS');
-            console.log(data);
-          });
-
-*/
     }
 
     
