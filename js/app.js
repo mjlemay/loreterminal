@@ -393,53 +393,45 @@
             $paginatorBox = $('#paginator_box'),
             $displayPane = $('#display_pane');
 
+        console.log('MOST RECENT CODE!!!!');
 
         for (var i = remainingText.length; i >= 1;) {
-            console.log('loop i ' + i);
+            console.log(remainingText.length + ' <=  ' + avgChunkAmount);
             if (remainingText.length <= avgChunkAmount) {
-                console.log(remainingText.length + ' <=  ' + avgChunkAmount);
                 pageChunk = remainingText;
                 remainingText = '';
                 i = 0;
             } else {
-                console.log(remainingText.length + ' >  ' + avgChunkAmount);
                 pregnantPageChunk = remainingText.slice(0, chunkAmount);
                 remainingText = remainingText.slice(chunkAmount);
                 pageOrphans = remainingText.split(' ');
 
                 for (var j = pageOrphans.length; j > 0;) {
                     var orphan = pageOrphans[0];
-                    console.log('loop j ' + j);
                     pregnantPageChunk += ' ' + orphan;  //adds spaces to a broken word;
                     pageOrphans.shift();
                     $paginatorBox.html(pregnantPageChunk);
                     if ($paginatorBox[0].offsetHeight < $paginatorBox[0].scrollHeight) {
-                        console.log('paginating on ' + orphan);
                         pageOrphans.unshift(orphan);
                         remainingText = pageOrphans.join(' ');
-                        console.log('remainingText: ' + remainingText);
                         i = remainingText.length;
-                        pageChunk = '';
                         j = 0;
                     } else {
-                        console.log('adding to chunk');
                         pageChunk = pregnantPageChunk;
                         j--;
-                        console.log(j, remainingText);
-                        if (j <= 0) {
-                            ///some logic goes here
-                        }
                     }
                 }
                 i = remainingText.length;
             }
-                generatedPages.push(pageChunk);
+            console.log('')
+            generatedPages.push(pageChunk);
             if (avgChunkAmount !== initalChunkAmount) {
                 avgChunkAmount = (avgChunkAmount + pageChunk.length) / 2;
             } else {
                avgChunkAmount =  pageChunk.length;
             }
         }
+        console.log('page', generatedPages);
         pages = generatedPages;
         $displayPane.html(pages[page]);
         updatePageCount();
