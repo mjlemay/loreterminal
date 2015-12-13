@@ -423,6 +423,7 @@
             pageChunk = '',
             pregnantPageChunk = '',
             pageOrphans = [],
+            maxOrphans = 0,
             $paginatorBox = $('#paginator_box'),
             $displayPane = $('#display_pane');
 
@@ -435,11 +436,16 @@
             } else {
                 pregnantPageChunk = remainingText.slice(0, chunkAmount);
                 remainingText = remainingText.slice(chunkAmount);
-                pageOrphans = remainingText.split(' ');
+                pageOrphans = remainingText.split(' '),
+                maxOrphans = pageOrphans.length;
 
                 for (var j = pageOrphans.length; j > 0;) {
                     var orphan = pageOrphans[0];
-                    pregnantPageChunk += ' ' + orphan;  //adds spaces to a broken word;
+                    var space = ' ';
+                    if (j == maxOrphans) {
+                        space = '';
+                    }
+                    pregnantPageChunk += (space + orphan);  //adds spaces to a broken word;
                     pageOrphans.shift();
                     $paginatorBox.html(pregnantPageChunk);
                     if ($paginatorBox[0].offsetHeight < $paginatorBox[0].scrollHeight) {
@@ -450,6 +456,10 @@
                     } else {
                         pageChunk = pregnantPageChunk;
                         j--;
+                        if (j == 0) {
+                            remainingText = '';
+                            i = 0;
+                        }
                     }
                 }
                 i = remainingText.length;
